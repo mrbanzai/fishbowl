@@ -1,15 +1,17 @@
+require 'roxml'
+
 module Fishbowl::Objects
-  class User < BaseObject
-    attr_accessor :db_id, :user_name, :first_name, :last_name, :initials, :active
 
-    def self.attributes
-      %w{ID UserName FirstName LastName Initials Active}
-    end
+  class User
+    include ROXML
 
-    def initialize(user_xml)
-      @xml = user_xml
-      parse_attributes
-      self
-    end
+    xml_name 'User'
+    xml_accessor :db_id, :from => 'ID', :as => Integer
+    xml_accessor :user_name, :from => 'UserName'
+    xml_accessor :first_name, :from => 'FirstName'
+    xml_accessor :last_name, :from => 'LastName'
+    xml_accessor :initials, :from => 'Initials'
+    xml_accessor :active?, :from => 'Active'
   end
+
 end

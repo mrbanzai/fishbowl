@@ -1,15 +1,14 @@
+require 'roxml'
+
 module Fishbowl::Objects
-  class Account < BaseObject
-    attr_reader :name, :accounting_id, :account_type, :balance
 
-    def self.attributes
-      %w{Name AccountingID AccountType Balance}
-    end
+  class Account
+    include ROXML
 
-    def initialize(account_xml)
-      @xml = account_xml
-      parse_attributes
-      self
-    end
+    xml_accessor :name, :from => 'Name'
+    xml_accessor :accounting_id, :from => 'AccountingID'
+    xml_accessor :account_type, :from => 'AccountType', :as => Integer
+    xml_accessor :balance, :from => 'Balance', :as => Float
   end
+
 end

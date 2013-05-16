@@ -1,54 +1,40 @@
+require 'roxml'
+require 'fishbowl/objects/uom'
+
 module Fishbowl::Objects
-  class Carton < BaseObject
-    attr_reader :db_id, :ship_id, :carton_num, :tracking_num, :freight_weight, :freight_amount, :shipping_items
 
-    def self.attributes
-      %w{ID ShipID CartonNum TrackingNum FreightWeight FreightAmount}
-    end
+  class ShippingItem
+    include ROXML
 
-    def initialize(carton_xml)
-      @xml = carton_xml
-      parse_attributes
-
-      @shipping_items = get_shipping_items
-
-      self
-    end
-
-  private
-
-    def get_shipping_items
-      results = []
-
-      @xml.xpath('ShippingItems/ShippingItem').each do |xml|
-        results << Fishbowl::Objects::ShippingItem.new(xml)
-      end
-
-      results
-    end
+    xml_accessor :ship_item_id, :from => 'ShipItemID', :as => Integer
+    xml_accessor :product_number, :from => 'ProductNumber'
+    xml_accessor :product_description, :from => 'ProductDescription'
+    xml_accessor :qty_shipped, :from => 'QuantityShipped', :as => Integer
+    xml_accessor :uom, :from => 'UOM', :as => UOM
+    xml_accessor :cost, :from => 'Cost', :as => Float
+    xml_accessor :sku, :from => 'SKU'
+    xml_accessor :upc, :from => 'UPC'
+    xml_accessor :order_line_item, :from => 'OrderLineItem', :as => Integer
+    xml_accessor :carton_name, :from => 'CartonName'
+    xml_accessor :carton_id, :from => 'CartonID', :as => Integer
+    xml_accessor :tag_num, :from => 'TagNum', :as => Integer
+    xml_accessor :weight, :from => 'Weight', :as => Float
+    xml_accessor :weight_uom, :from => 'UOM', :as => UOM, :in => 'WeightUOM'
+    xml_accessor :display_weight, :from => 'DisplayWeight', :as => Float
+    xml_accessor :display_weight_uom, :from => 'UOM', :as => UOM, :in => 'DisplayWeightUOM'
+    xml_accessor :tracking, :from => 'Tracking', :as => Tracking
   end
 
-  class ShippingItem < BaseObject
-    attr_reader :ship_item_id, :product_number, :product_description
-    attr_reader :qty_shipped, :cost, :sku, :upc, :order_item_id
-    attr_reader :order_line_item, :carton_name, :carton_id, :tag_num, :weight
-    attr_reader :display_weight, :tracking, :uom, :weight_uom, :display_weight_uom
+  class Carton
+    include ROXML
 
-    def self.attributes
-      %w{ShipItemID ProductNumber ProductDescription QtyShipped Cost SKU UPC
-         OrderItemID OrderLineItem CartonName CartonID TagNum Weight
-         DisplayWeight Tracking}
-    end
-
-    def initialize(shipping_item_xml)
-      @xml = shipping_item_xml
-      parse_attributes
-
-      @uom = Fishbowl::Objects::UOM.new(@xml.xpath("UOM"))
-      @weight_uom = Fishbowl::Objects::UOM.new(@xml.xpath("WeightUOM/UOM"))
-      @display_weight_uom = Fishbowl::Objects::UOM.new(@xml.xpath("DisplayWeightUOM/UOM"))
-
-      self
-    end
+    xml_accessor :db_id, :from => 'ID', :as => Integer
+    xml_accessor :ship_id, :from => 'ShipID', :as => Integer
+    xml_accessor :carton_num, :from => 'CartonNum', :as => Integer
+    xml_accessor :tracking_num, :from => 'TrackingNum'
+    xml_accessor :freight_weight, :from => 'FreightWeight', :as => Float
+    xml_accessor :freight_amount, :from => 'FreightAmount', :as => Float
+    xml_accessor :shipping_items, :from => 'ShippingItem', :as => [ShippingItem], :in => 'ShippingItems'
   end
+
 end

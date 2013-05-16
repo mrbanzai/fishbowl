@@ -1,15 +1,11 @@
+require 'roxml'
+
 module Fishbowl::Objects
-  class Carrier < BaseObject
-    attr_accessor :name
 
-    def self.attributes
-      %w{Name}
-    end
+  class Carrier
+    include ROXML
 
-    def initialize(carrier_xml)
-      @xml = carrier_xml
-      parse_attributes
-      self
-    end
+    xml_accessor :name, :from => 'Name'
   end
+
 end

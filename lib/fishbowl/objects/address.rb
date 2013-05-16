@@ -1,86 +1,59 @@
+require 'roxml'
+
 module Fishbowl::Objects
-  class Address < BaseObject
-    attr_reader :db_id, :temp_account, :name, :attn, :street, :city, :zip
-    attr_reader :location_group_id, :default, :residential, :type, :state
-    attr_reader :country, :address_information_list
 
-    def self.attributes
-      %w{ID Name Attn Street City Zip LocationGroupID Default Residential Type}
-    end
+  class State
+    include ROXML
 
-    def initialize(address_xml)
-      @xml = address_xml
-      parse_attributes
-
-      @temp_account
-      @state = get_state(address_xml)
-      @country = get_country(address_xml)
-      @address_information_list = get_address_information(address_xml)
-
-      self
-    end
-
-  private
-
-    def get_state(address_xml)
-      State.new(address_xml.xpath("State"))
-    end
-
-    def get_country(address_xml)
-      Country.new(address_xml.xpath("Country"))
-    end
-
-    def get_address_information(address_xml)
-      results = []
-
-      address_xml.xpath("AddressInformationList").each do |address_info_xml|
-        results << AddressInformation.new(address_info_xml)
-      end
-
-      results
-    end
-
+    xml_accessor :db_id, :from => 'ID', :as => Integer
+    xml_accessor :code, :from => 'Code'
+    xml_accessor :name, :from => 'Name'
+    xml_accessor :country_id, :from => 'CountryID', :as => Integer
   end
 
-  class State < BaseObject
-    attr_reader :db_id, :name, :code, :country_id
+  class Country
+    include ROXML
 
-    def self.attributes
-      %w{ID Name Code CountryID}
-    end
-
-    def initialize(state_xml)
-      @xml = state_xml
-      parse_attributes
-      self
-    end
+    xml_accessor :db_id, :from => 'ID', :as => Integer
+    xml_accessor :name, :from => 'Name'
+    xml_accessor :code, :from => 'Code'
   end
 
-  class Country < BaseObject
-    attr_reader :db_id, :name, :code
+  class TempAccount
+    include ROXML
 
-    def self.attributes
-      %w{ID Name Code}
-    end
-
-    def initialize(country_xml)
-      @xml = country_xml
-      parse_attributes
-      self
-    end
+    xml_accessor :db_id, :from => 'ID', :as => Integer
+    xml_accessor :type, :from => 'Type', :as => Integer
   end
 
-  class AddressInformation < BaseObject
-    attr_reader :db_id, :name, :data, :default, :type
+  class AddressInformation
+    include ROXML
 
-    def self.attributes
-      %w{ID Name Data Default Type}
-    end
-
-    def initialize(address_info_xml)
-      @xml = address_info_xml
-      parse_attributes
-      self
-    end
+    xml_accessor :db_id, :from => 'ID', :as => Integer
+    xml_accessor :name, :from => 'Name'
+    xml_accessor :data, :from => 'Data'
+    xml_accessor :default?, :from => 'Default'
+    xml_accessor :type, :from => 'Type'
   end
+
+  class Address
+    include ROXML
+
+    xml_name 'Address'
+    xml_accessor :db_id, :from => 'ID', :as => Integer
+    xml_accessor :temp_account, :from => 'Temp-Account', :as => TempAccount
+    xml_accessor :name, :from => 'Name'
+    xml_accessor :attn, :from => 'Attn'
+    xml_accessor :street, :from => 'Street'
+    xml_accessor :city, :from => 'City'
+    xml_accessor :zip, :from => 'Zip'
+    xml_accessor :location_group_id, :from => 'LocationGroupID', :as => Integer
+    xml_accessor :default?, :from => 'Default'
+    xml_accessor :residential?, :from => 'Residential'
+    xml_accessor :type, :from => 'Type'
+    xml_accessor :state, :from => 'State', :as => State
+    xml_accessor :country, :from => 'Country', :as => Country
+    xml_accessor :address_information, :from => 'AddressInformation', :as => [AddressInformation], :in => 'AddressInformationList'
+  end
+
 end

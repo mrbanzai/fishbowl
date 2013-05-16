@@ -1,47 +1,29 @@
+require 'roxml'
+
 module Fishbowl::Objects
-  class UOM < BaseObject
-    attr_accessor :uomid, :name, :code, :integral, :active, :type
-    attr_accessor :uom_conversions
 
-    def self.attributes
-      %w{UOMID Name Code Integral Active Type}
-    end
+  class UOMConversion
+    include ROXML
 
-    def initialize(uom_xml)
-      @xml = uom_xml
-      parse_attributes
-
-      @uom_conversions = get_uom_conversions
-
-      self
-    end
-
-  private
-
-    def get_uom_conversions
-      results = []
-
-      @xml.xpath("//UOMConversions/UOMConversion").each do |xml|
-        results << Fishbowl::Objects::UOMConversion.new(xml)
-      end
-
-      results
-    end
-
+    xml_accessor :main_uom_id, :from => 'MainUOMID', :as => Integer
+    xml_accessor :to_uom_id, :from => 'ToUOMID', :as => Integer
+    xml_accessor :to_uom_code, :from => 'ToUOMCode'
+    xml_accessor :conversion_multiply, :from => 'ConversionMultiply', :as => Float
+    xml_accessor :conversion_factor, :from => 'ConversionFactor', :as => Float
+    xml_accessor :to_uom_is_integral?, :from => 'ToUOMIsIntegral'
   end
 
-  class UOMConversion < BaseObject
-    attr_accessor :main_uom_id, :to_uom_id, :to_uom_code, :conversion_multiply
-    attr_accessor :conversion_factor, :to_uom_is_integral
+  class UOM
+    include ROXML
 
-    def self.attributes
-      %w{MainUOMID ToUOMID ToUOMCode ConversionMultiply ConversionFactor ToUOMIsIntegral}
-    end
-
-    def initialize(uom_conversion_xml)
-      @xml = uom_conversion_xml
-      parse_attributes
-      self
-    end
+    xml_name 'UOM'
+    xml_accessor :uom_id, :from => 'UOMID', :as => Integer
+    xml_accessor :name, :from => 'Name'
+    xml_accessor :code, :from => 'Code'
+    xml_accessor :integral?, :from => 'Integral'
+    xml_accessor :active?, :from => 'Active'
+    xml_accessor :type, :from => 'Type'
+    xml_accessor :conversions, :from => 'UOMConversions', :as => [UOMConversion]
   end
+
 end
