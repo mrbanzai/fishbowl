@@ -1,28 +1,37 @@
+require 'nokogiri'
+require 'fishbowl/requests/base_request'
+require 'fishbowl/objects/tracking'
+
 module Fishbowl::Requests
-  def self.adjust_inventory(options = {})
-    options = options.symbolize_keys
 
-    %w{tag_number quantity}.each do |required_field|
-      raise ArgumentError if options[required_field.to_sym].nil?
-    end
+  class AdjustInventory < BaseRequest
 
-    raise ArgumentError unless options[:tracking].nil? || options[:tracking].is_a?(Fishbowl::Object::Tracking)
+    attr_accessor :tag_num, :quantity, :tracking
 
-    request = format_adjust_inventory_request(options)
-    Fishbowl::Objects::BaseObject.new.send_request(request, 'AdjustInventoryRs')
-  end
-
-private
-
-  def self.format_adjust_inventory_request(options)
-    Nokogiri::XML::Builder.new do |xml|
-      xml.request {
-        xml.AdjustInventoryRq {
-          xml.TagNum options[:tag_number]
-          xml.Quantity options[:quantity]
-          xml.Tracking options[:tracking] unless options[:tracking].nil?
+    def compose
+      validate
+      envelope(Nokogiri::XML::Builder.new do |xml|
+        xml.request {
+          xml.AdjustInventoryRq {
+            xml.TagNum @tag_num
+            xml.Quantity @quantity
+            xml.Tracking @tracking unless @tracking.nil?
+          }
         }
-      }
+      end)
     end
+
+  protected
+
+    def validate
+      raise ArgumentError, 'tag_num is required' unless @tag_num
+      raise ArgumentError, 'quantity is required' unless @quantity
+      raise ArgumentError, 'tracking must be a valid Tracking object' if @tracking && !@tracking.is_a?(Fishbowl::Objects::Tracking)
+    end
+
+    def distill(response)
+    end
+
   end
+
 end

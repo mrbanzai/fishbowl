@@ -3,14 +3,14 @@ require 'fishbowl/requests/base_request'
 
 module Fishbowl::Requests
 
-  class VoidSalesOrder < BaseRequest
-    attr_accessor :so_number
+  class ExportType < BaseRequest
+    attr_accessor :export_type
 
     def compose
       envelope(Nokogiri::XML::Builder.new do |xml|
         xml.request {
-          xml.VoidSORq {
-            xml.SONumber @so_number
+          xml.ExportRq {
+            xml.Type @export_type
           }
         }
       end)
@@ -19,10 +19,11 @@ module Fishbowl::Requests
   protected
 
     def validate
-      raise ArgumentError, 'Must provide so_number' if @so_number.nil?
+      raise ArgumentError, 'Must provide export_type' if @export_type.nil?
     end
 
     def distill(response_doc)
+     # response_doc.xpath('//ExportName').map { |n| n.text }
     end
 
   end

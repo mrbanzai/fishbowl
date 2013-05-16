@@ -1,12 +1,20 @@
+require 'nokogiri'
+require 'fishbowl/requests/base_request'
+
 module Fishbowl::Requests
-  def self.get_import_list
-    _, _, response = Fishbowl::Objects::BaseObject.new.send_request('ImportListRq', 'ImportListRs')
 
-    results = []
-    #response.xpath("//Customer/Name").each do |customer_xml|
-    #  results << customer_xml.inner_text
-    #end
+  class GetImportList < BaseRequest
 
-    results
+    def compose
+      envelope('ImportListRq')
+    end
+
+  protected
+
+    def distill(response_doc)
+      response_doc.xpath('//ImportName').map { |n| n.text }
+    end
+
   end
+
 end

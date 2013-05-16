@@ -1,12 +1,21 @@
-module Fishbowl::Requests
-  def self.get_uom_list
-    _, _, response = Fishbowl::Objects::BaseObject.new.send_request('UOMRq', 'UOMRs')
+require 'nokogiri'
+require 'fishbowl/requests/base_request'
+require 'fishbowl/objects/uom'
 
-    results = []
-    response.xpath("//UOM").each do |uom_xml|
-      results << Fishbowl::Objects::UOM.new(uom_xml)
+module Fishbowl::Requests
+
+  class GetUomList < BaseRequest
+
+    def compose
+      envelope('UOMRq')
     end
 
-    results
+  protected
+
+    def distill(response_doc)
+      response_doc.xpath('//UOM').map { |n| Fishbowl::Objects::UOM.from_xml(n) }
+    end
+
   end
+
 end

@@ -1,12 +1,20 @@
+require 'nokogiri'
+require 'fishbowl/requests/base_request'
+
 module Fishbowl::Requests
-  def self.get_export_list
-    _, _, response = Fishbowl::Objects::BaseObject.new.send_request('ExportListRq', 'ExportListRs')
 
-    results = []
-    #response.xpath("//Customer/Name").each do |customer_xml|
-    #  results << customer_xml.inner_text
-    #end
+  class GetExportList < BaseRequest
 
-    results
+    def compose
+      envelope('ExportListRq')
+    end
+
+  protected
+
+    def distill(response_doc)
+      response_doc.xpath('//ExportName').map { |n| n.text }
+    end
+
   end
+
 end

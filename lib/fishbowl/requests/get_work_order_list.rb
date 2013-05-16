@@ -1,12 +1,21 @@
-module Fishbowl::Requests
-  def self.get_work_order_list
-    _, _, response = Fishbowl::Objects::BaseObject.new.send_request('WorkOrderListRq', 'WorkOrderListRs')
+require 'nokogiri'
+require 'fishbowl/requests/base_request'
+require 'fishbowl/objects/work_order'
 
-    results = []
-    response.xpath("//WO").each do |work_order_xml|
-      results << Fishbowl::Objects::WorkOrder.new(work_order_xml)
+module Fishbowl::Requests
+
+  class GetWorkOrderList < BaseRequest
+
+    def compose
+      envelope('WorkOrderListRq')
     end
 
-    results
+  protected
+
+    def distill(response_doc)
+      response_doc.xpath('//WO').map { |n| Fishbowl::Objects::WorkOrder.from_xml(n) }
+    end
+
   end
+
 end

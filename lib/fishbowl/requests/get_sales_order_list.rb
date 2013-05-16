@@ -1,16 +1,19 @@
 require 'nokogiri'
+require 'fishbowl/objects/sales_order'
 require 'fishbowl/requests/base_request'
 
 module Fishbowl::Requests
 
-  class VoidSalesOrder < BaseRequest
-    attr_accessor :so_number
+  class GetSalesOrderList < BaseRequest
+
+    attr_accessor :so_num
 
     def compose
+      validate
       envelope(Nokogiri::XML::Builder.new do |xml|
         xml.request {
-          xml.VoidSORq {
-            xml.SONumber @so_number
+          xml.GetSOListRq {
+            xml.SONum @so_num unless @so_num.nil?
           }
         }
       end)
@@ -19,10 +22,10 @@ module Fishbowl::Requests
   protected
 
     def validate
-      raise ArgumentError, 'Must provide so_number' if @so_number.nil?
     end
 
     def distill(response_doc)
+      response_doc.xpath('//SalesOrder').map { |n| Fishbowl::Objects::SalesOrder.from_xml(n) }
     end
 
   end

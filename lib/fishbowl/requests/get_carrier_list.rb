@@ -1,12 +1,20 @@
-module Fishbowl::Requests
-  def self.get_carrier_list
-    _, _, response = Fishbowl::Objects::BaseObject.new.send_request('CarrierListRq', 'CarrierListRs')
+require 'nokogiri'
+require 'fishbowl/requests/base_request'
 
-    results = []
-    response.xpath("//Carrier").each do |carrier_xml|
-      results << Fishbowl::Objects::Carrier.new(carrier_xml)
+module Fishbowl::Requests
+
+  class GetCarrierList < BaseRequest
+
+    def compose
+      envelope('CarrierListRq')
     end
 
-    results
+  protected
+
+    def distill(response_doc)
+      response_doc.xpath('//Carriers/Name').map { |n| n.text }
+    end
+
   end
+
 end

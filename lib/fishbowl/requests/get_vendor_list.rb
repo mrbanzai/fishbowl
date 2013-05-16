@@ -1,12 +1,21 @@
-module Fishbowl::Requests
-  def self.get_location_group_list
-    _, _, response = Fishbowl::Objects::BaseObject.new.send_request('VendorListRq', 'VendorListRs')
+require 'nokogiri'
+require 'fishbowl/requests/base_request'
+require 'fishbowl/objects/vendor'
 
-    results = []
-    response.xpath("//Vendor").each do |vendor_xml|
-      results << Fishbowl::Objects::Vendor.new(vendor_xml)
+module Fishbowl::Requests
+
+  class GetVendorList < BaseRequest
+
+    def compose
+      envelope('VendorRq')
     end
 
-    results
+  protected
+
+    def distill(response_doc)
+      response_doc.xpath('//Vendor').map { |n| Fishbowl::Objects::Vendor.from_xml(n) }
+    end
+
   end
+
 end

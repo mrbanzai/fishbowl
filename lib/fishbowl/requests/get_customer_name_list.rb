@@ -1,12 +1,20 @@
-module Fishbowl::Requests
-  def self.get_customer_name_list
-    _, _, response = Fishbowl::Objects::BaseObject.new.send_request('CustomerNameListRq', 'CustomerNameListRs')
+require 'nokogiri'
+require 'fishbowl/requests/base_request'
 
-    results = []
-    response.xpath("//Customer/Name").each do |customer_xml|
-      results << customer_xml.inner_text
+module Fishbowl::Requests
+
+  class GetCustomerNameList < BaseRequest
+
+    def compose
+      envelope('CustomerNameListRq')
     end
 
-    results
+  protected
+
+    def distill(response_doc)
+      response_doc.xpath('//Customer/Name').map { |n| n.text }
+    end
+
   end
+
 end
