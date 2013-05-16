@@ -1,107 +1,122 @@
-require 'socket'
-require 'base64'
-require 'singleton'
 
-require 'nokogiri'
+require 'socket'
+require 'digest'
 
 require 'fishbowl/ext'
 
-require 'fishbowl/version'
-require 'fishbowl/errors'
-require 'fishbowl/requests'
-require 'fishbowl/objects'
-
 module Fishbowl # :nodoc:
-  class Connection
-    include Singleton
 
-    def self.connect(options = {})
+  # to avoid complains about the top-level module
+  # not existing, these are required inside the
+  # module
+  require 'fishbowl/errors'
+  require 'fishbowl/requests'
+  require 'fishbowl/version'
+  require 'fishbowl/objects'
+
+  class Connection
+
+    attr_accessor :host, :port, :username, :password
+    attr_reader :last_request, :last_response
+
+    @connection = nil
+    @ticket = nil
+
+    def initialize(options = {})
       raise Fishbowl::Errors::MissingHost if options[:host].nil?
 
       @host = options[:host]
-      @port = options[:port].nil? ? 28192 : options[:port]
+      @port = options[:port] || 28192
+    end
 
+    def connect
       @connection = TCPSocket.new @host, @port
-
-      self.instance
+      self
     end
 
-    def self.login(options = {})
+    def login(username, password)
       raise Fishbowl::Errors::ConnectionNotEstablished if @connection.nil?
-      raise Fishbowl::Errors::MissingUsername if options[:username].nil?
-      raise Fishbowl::Errors::MissingPassword if options[:password].nil?
+      raise Fishbowl::Errors::MissingUsername if username.nil?
+      raise Fishbowl::Errors::MissingPassword if password.nil?
 
-      @username, @password = options[:username], options[:password]
+      @username, @password = username, password
 
-      code, message, _ = Fishbowl::Objects::BaseObject.new.send_request(login_request, 'LoginRs')
+      login_request = Fishbowl::Requests::Login.new(
+        :username => username,
+        :password => password
+      )
 
-      Fishbowl::Errors.confirm_success_or_raise(code, message)
+      response = send_request(login_request)
 
-      self.instance
+      self
     end
 
-    def self.host
-      @host
+    def send_request(request)
+      request_builder = request.compose
+      attach_ticket(request_builder)
+
+      @last_request = request_builder.doc
+      @last_response = nil
+
+      write(request_builder)
+      get_response(request)
     end
 
-    def self.port
-      @port
-    end
-
-    def self.username
-      @username
-    end
-
-    def self.password
-      @password
-    end
-
-    def self.send(request, expected_response = 'FbiMsgRs')
-      write(request)
-      get_response(expected_response)
-    end
-
-    def self.close
+    def close
       @connection.close
       @connection = nil
+      self
+    end
+
+    # Create utility proxies to requests, eg., will add method "add_inventory"
+    # that builds and sends a Fishbowl::Requests::AddInventory
+    Fishbowl::Requests.constants.each do |c|
+      module_constant = Fishbowl::Requests.const_get(c)
+      method_name = c.to_s.underscore.to_sym
+      if module_constant.is_a?(Class) && !self.method_defined?(method_name)
+        define_method method_name do |attributes = {}|
+          request = module_constant.new(attributes)
+          send_request(request)
+        end
+      end
     end
 
   private
 
-    def self.login_request
-      Nokogiri::XML::Builder.new do |xml|
-        xml.request {
-          xml.LoginRq {
-            xml.IAID          "fishbowl-ruby"
-            xml.IAName        "Fishbowl Ruby Gem"
-            xml.IADescription "Fishbowl Ruby Gem"
-            xml.UserName      @username
-            xml.UserPassword  encoded_password
-          }
-        }
+    # This is kind of awkward, as we're adding the ticket into
+    # the request from within the connection - would it be
+    # better to make it a static property on the base request?
+    # Or inject it to every `build` call?
+    #
+    # Not sure if the additional ticket information is required
+    # on later calls (user ID, etc.)
+    def attach_ticket(request_builder)
+      if @ticket.nil?
+        @ticket = Nokogiri::XML::Node.new('Ticket', request_builder.doc)
       end
+
+      node = request_builder.doc.xpath('//FbiXml/*').first
+      node.add_previous_sibling(@ticket)
+
+      request_builder
     end
 
-    def self.encoded_password
-      Base64.encode64(@password)
-    end
-
-    def self.write(request)
-      body = request.to_xml
-      size = [body.size].pack("L>")
+    def write(request_builder)
+      body = request_builder.to_xml
+      size = [body.size].pack("N")
 
       @connection.write(size)
       @connection.write(body)
     end
 
-    def self.get_response(expectation)
-      length = @connection.recv(3).unpack('L>').join('').to_i
-      response = Nokogiri::XML.parse(@connection.recv(length))
+    def get_response(request)
+      length = @connection.read(4).unpack('N').join('').to_i
+      response_doc = Nokogiri::XML.parse(@connection.read(length))
+      @last_response = response_doc
 
-      status_code = response.xpath("//#{expectation}/@statusCode").first.value
-      status_message = response.xpath("//#{expectation}/@statusMessage").first.value
+      _, _, @ticket, response = request.parse_response(response_doc)
 
-      [status_code, status_message, response]
+      response
     end
 
   end
