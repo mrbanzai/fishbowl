@@ -18,5 +18,5 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_dependency 'nokogiri', '~> 1.5.5'
-  gem.add_dependency 'roxml', '~> 2.5.1'
+  gem.add_dependency 'roxml', '~> 3.3.1'
 end
