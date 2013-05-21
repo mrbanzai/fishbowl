@@ -1,6 +1,6 @@
 require 'nokogiri'
 require 'date'
-require 'fishbowl/objects/part'
+require 'fishbowl/objects/inventory_quantity'
 require 'fishbowl/requests/base_request'
 
 module Fishbowl::Requests
@@ -29,7 +29,7 @@ module Fishbowl::Requests
     end
 
     def distill(response_doc)
-      Fishbowl::Objects::Part.from_xml(response_doc.at_xpath('//Part'))
+      response_doc.xpath('//InvQty').map { |n| Fishbowl::Objects::InventoryQuantity.from_xml(n) }
     end
 
   end
