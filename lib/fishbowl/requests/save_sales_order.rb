@@ -13,7 +13,7 @@ module Fishbowl::Requests
     end
 
     def issue?
-      @issue || false
+      @issue.nil? ? true : @issue
     end
 
     def compose
