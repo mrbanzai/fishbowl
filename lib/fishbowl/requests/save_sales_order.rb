@@ -21,7 +21,7 @@ module Fishbowl::Requests
       envelope(Nokogiri::XML::Builder.new do |xml|
         xml.request {
           xml.SOSaveRq {
-            xml << @sales_order.to_xml
+            xml << @sales_order.to_xml.to_xml
             xml.IssueFlag issue?
           }
         }

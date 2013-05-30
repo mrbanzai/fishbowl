@@ -14,7 +14,7 @@ module Fishbowl::Requests
         xml.request {
           xml.AddSOItemRq {
             @sales_order.nil? ? (xml.OrderNum @order_number) : (xml.SalesOrder @sales_order)
-            xml << @sales_order_item.to_xml
+            xml << @sales_order_item.to_xml.to_xml
           }
         }
       end)
