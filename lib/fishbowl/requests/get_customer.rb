@@ -24,7 +24,7 @@ module Fishbowl::Requests
     end
 
     def distill(response_doc)
-      response_doc.xpath('//Customer').map { |n| Fishbowl::Objects::Customer.from_xml(n) }
+      Fishbowl::Objects::Customer.from_xml(response_doc.at_xpath('//Customer'))
     end
 
   end
