@@ -5,6 +5,7 @@ module Fishbowl::Objects
   class State
     include ROXML
 
+    xml_name 'State'
     xml_accessor :db_id, :from => 'ID', :as => Integer
     xml_accessor :code, :from => 'Code'
     xml_accessor :name, :from => 'Name'
@@ -14,6 +15,7 @@ module Fishbowl::Objects
   class Country
     include ROXML
 
+    xml_name 'Country'
     xml_accessor :db_id, :from => 'ID', :as => Integer
     xml_accessor :name, :from => 'Name'
     xml_accessor :code, :from => 'Code'
@@ -22,6 +24,7 @@ module Fishbowl::Objects
   class TempAccount
     include ROXML
 
+    xml_name 'TempAccount'
     xml_accessor :db_id, :from => 'ID', :as => Integer
     xml_accessor :type, :from => 'Type', :as => Integer
   end
@@ -29,6 +32,7 @@ module Fishbowl::Objects
   class AddressInformation
     include ROXML
 
+    xml_name 'AddressInformation'
     xml_accessor :db_id, :from => 'ID', :as => Integer
     xml_accessor :name, :from => 'Name'
     xml_accessor :data, :from => 'Data'
