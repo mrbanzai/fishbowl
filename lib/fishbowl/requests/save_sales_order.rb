@@ -37,6 +37,7 @@ module Fishbowl::Requests
     end
 
     def distill(response_doc)
+      Fishbowl::Objects::SalesOrder.from_xml(response_doc.at_xpath('//SalesOrder'))
     end
 
   end
