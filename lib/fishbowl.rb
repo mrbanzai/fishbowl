@@ -34,8 +34,12 @@ module Fishbowl # :nodoc:
       self
     end
 
+    def connected?
+      !!@connection
+    end
+
     def login(username, password)
-      raise Fishbowl::Errors::ConnectionNotEstablished if @connection.nil?
+      raise Fishbowl::Errors::ConnectionNotEstablished if !connected?
       raise Fishbowl::Errors::MissingUsername if username.nil?
       raise Fishbowl::Errors::MissingPassword if password.nil?
 
