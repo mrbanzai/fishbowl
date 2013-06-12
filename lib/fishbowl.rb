@@ -67,7 +67,7 @@ module Fishbowl # :nodoc:
     end
 
     def close
-      @connection.close
+      @connection.close if @connection
       @connection = nil
       self
     end
