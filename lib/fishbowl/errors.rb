@@ -5,6 +5,7 @@ module Fishbowl::Errors
   class MissingPassword < ArgumentError; end;
 
   class StatusError < RuntimeError; end;
+  class ServerError < RuntimeError; end;
 
   STATUS_MAP = {
     1000 => 'Success!',
@@ -119,8 +120,13 @@ module Fishbowl::Errors
 
   def self.confirm_success_or_raise(code, message)
     message = STATUS_MAP[code.to_i] if message.nil?
-    raise StatusError.new(message) unless code.to_i === 1000
-
-    return true
+    case code.to_i
+    when 1000
+        true
+    when 1001..1999
+        raise ServerError.new(message)
+    else
+        raise StatusError.new(message)
+    end
   end
 end
