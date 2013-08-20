@@ -50,7 +50,14 @@ module Fishbowl # :nodoc:
         :password => password
       )
 
-      response = send_request(login_request)
+      clear_ticket
+
+      begin
+        send_request(login_request)
+      rescue
+        clear_ticket
+        raise
+      end
 
       self
     end
@@ -72,6 +79,13 @@ module Fishbowl # :nodoc:
       @connection.close if @connection
       @connection = nil
       self
+    end
+
+    def has_ticket?
+    end
+
+    def clear_ticket
+      @ticket = nil
     end
 
     # Create utility proxies to requests, eg., will add method "add_inventory"
