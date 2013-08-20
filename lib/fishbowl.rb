@@ -23,7 +23,7 @@ module Fishbowl # :nodoc:
     @ticket = nil
 
     def initialize(options = {})
-      raise Fishbowl::Errors::MissingHost if options[:host].nil?
+      raise Errors::MissingHost if options[:host].nil?
 
       @host = options[:host]
       @port = options[:port] || 28192
@@ -39,13 +39,13 @@ module Fishbowl # :nodoc:
     end
 
     def login(username, password)
-      raise Fishbowl::Errors::ConnectionNotEstablished if !connected?
-      raise Fishbowl::Errors::MissingUsername if username.nil?
-      raise Fishbowl::Errors::MissingPassword if password.nil?
+      raise Errors::ConnectionNotEstablished if !connected?
+      raise Errors::MissingUsername if username.nil?
+      raise Errors::MissingPassword if password.nil?
 
       @username, @password = username, password
 
-      login_request = Fishbowl::Requests::Login.new(
+      login_request = Requests::Login.new(
         :username => username,
         :password => password
       )
@@ -56,6 +56,8 @@ module Fishbowl # :nodoc:
     end
 
     def send_request(request)
+      raise Errors::ConnectionNotEstablished unless connected?
+
       request_builder = request.compose
       attach_ticket(request_builder)
 
@@ -74,8 +76,8 @@ module Fishbowl # :nodoc:
 
     # Create utility proxies to requests, eg., will add method "add_inventory"
     # that builds and sends a Fishbowl::Requests::AddInventory
-    Fishbowl::Requests.constants.each do |c|
-      module_constant = Fishbowl::Requests.const_get(c)
+    Requests.constants.each do |c|
+      module_constant = Requests.const_get(c)
       method_name = c.to_s.underscore.to_sym
       if module_constant.is_a?(Class) && !self.method_defined?(method_name)
         define_method method_name do |attributes = {}|
