@@ -1,8 +1,17 @@
 module Fishbowl::Errors
-  class ConnectionNotEstablished < RuntimeError; end;
-  class MissingHost < ArgumentError; end;
-  class MissingUsername < ArgumentError; end;
-  class MissingPassword < ArgumentError; end;
+
+  {
+    RuntimeError => ['ConnectionNotEstablished', 'ConnectionTimeout'],
+    ArgumentError => ['Host', 'Username', 'Password'].map { |p| "Missing#{p}" }
+  }.each do |base, list|
+    list.each do |name|
+      self.const_set(name, Class.new(base) do
+        def initialize(msg = nil)
+          super(msg || self.class.name.demodulize.titleize.capitalize)
+        end
+      end)
+    end
+  end
 
   class StatusError < RuntimeError; end;
   class ServerError < RuntimeError; end;
