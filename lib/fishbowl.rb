@@ -27,10 +27,30 @@ module Fishbowl # :nodoc:
 
       @host = options[:host]
       @port = options[:port] || 28192
+
+      @connect_timeout = options[:connect_timeout] || 5.0
+      @read_timeout = options[:read_timeout] || 30.0
+      @write_timeout = options[:write_timeout] || 5.0
     end
 
     def connect
-      @connection = TCPSocket.new @host, @port
+      @connection = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+      sockaddr = Socket.sockaddr_in(@port, @host)
+
+      begin
+        @connection.connect_nonblock(sockaddr)
+      rescue Errno::EINPROGRESS
+        if IO.select(nil, [@connection], nil, @connect_timeout)
+          retry
+        else
+          @connection.close
+          @connection = nil
+          raise Errors::ConnectionTimeout
+        end
+      rescue Errno::EISCONN
+        # connection completed successfully
+      end
+
       self
     end
 
@@ -125,11 +145,17 @@ module Fishbowl # :nodoc:
       body = request_builder.to_xml
       size = [body.size].pack("N")
 
+      ready = IO.select(nil, [@connection], nil, @write_timeout)
+      raise Errors::ConnectionTimeout if !ready
+
       @connection.write(size)
       @connection.write(body)
     end
 
     def get_response(request)
+      ready = IO.select([@connection], nil, nil, @read_timeout)
+      raise Errors::ConnectionTimeout if !ready
+
       length = @connection.read(4).unpack('N').join('').to_i
       response_doc = Nokogiri::XML.parse(@connection.read(length))
       @last_response = response_doc
