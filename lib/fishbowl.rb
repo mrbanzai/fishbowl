@@ -102,6 +102,7 @@ module Fishbowl # :nodoc:
     end
 
     def has_ticket?
+      !!@ticket
     end
 
     def clear_ticket
