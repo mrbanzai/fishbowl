@@ -1,7 +1,10 @@
 module Fishbowl::Errors
 
+  class StatusError < RuntimeError; end;
+  class ServerError < RuntimeError; end;
+
   {
-    RuntimeError => ['ConnectionNotEstablished', 'ConnectionTimeout'],
+    ServerError => ['ConnectionNotEstablished', 'ConnectionTimeout'],
     ArgumentError => ['Host', 'Username', 'Password'].map { |p| "Missing#{p}" }
   }.each do |base, list|
     list.each do |name|
@@ -12,9 +15,6 @@ module Fishbowl::Errors
       end)
     end
   end
-
-  class StatusError < RuntimeError; end;
-  class ServerError < RuntimeError; end;
 
   STATUS_MAP = {
     1000 => 'Success!',
