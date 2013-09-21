@@ -98,6 +98,7 @@ module Fishbowl # :nodoc:
     def close
       @connection.close if @connection
       @connection = nil
+      clear_ticket
       self
     end
 
