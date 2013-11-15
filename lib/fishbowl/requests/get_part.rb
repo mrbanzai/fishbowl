@@ -31,7 +31,8 @@ module Fishbowl::Requests
   protected
 
     def distill(response_doc)
-      Fishbowl::Objects::Part.from_xml(response_doc.at_xpath('//Part'))
+      xml = response_doc.at_xpath('//Part')
+      Fishbowl::Objects::Part.from_xml(xml) if xml
     end
 
   end

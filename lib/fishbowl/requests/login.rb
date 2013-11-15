@@ -30,8 +30,11 @@ module Fishbowl::Requests
   protected
 
     def distill(response)
-      { :user_id => response.at_xpath('//Ticket/UserID').text,
-        :full_name => response.at_xpath('//LoginRs/UserFullName').text }
+      id_node = response.at_xpath('//Ticket/UserID')
+      name_node = response.at_xpath('//LoginRs/UserFullName')
+
+      { :user_id => (id_node.text if id_node),
+        :full_name => (name_node.text if name_node) }
     end
 
   end

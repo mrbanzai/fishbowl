@@ -24,7 +24,8 @@ module Fishbowl::Requests
     end
 
     def distill(response_doc)
-      Fishbowl::Objects::Customer.from_xml(response_doc.at_xpath('//Customer'))
+      xml = response_doc.at_xpath('//Customer')
+      Fishbowl::Objects::Customer.from_xml(xml) if xml
     end
 
   end

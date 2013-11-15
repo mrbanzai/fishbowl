@@ -21,7 +21,8 @@ module Fishbowl::Requests
   protected
 
     def distill(response_doc)
-      Fishbowl::Objects::Product.from_xml(response_doc.at_xpath('//Product'))
+      xml = response_doc.at_xpath('//Product')
+      Fishbowl::Objects::Product.from_xml(xml) if xml
     end
 
   end
