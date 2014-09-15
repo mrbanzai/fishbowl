@@ -1,4 +1,5 @@
 require 'roxml'
+require 'fishbowl/objects/tracking'
 require 'fishbowl/objects/uom'
 
 module Fishbowl::Objects
