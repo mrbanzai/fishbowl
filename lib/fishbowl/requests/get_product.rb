@@ -10,8 +10,8 @@ module Fishbowl::Requests
     def compose
       envelope(Nokogiri::XML::Builder.new do |xml|
         xml.request {
-          xml.ProductQueryRq {
-            xml.ProductNum @product_num
+          xml.ProductGetRq {
+            xml.Number @product_num
             xml.GetImage @get_image if @get_image
           }
         }
