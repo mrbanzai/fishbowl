@@ -1,7 +1,15 @@
 module Fishbowl::Errors
 
-  class StatusError < RuntimeError; end;
-  class ServerError < RuntimeError; end;
+  class FbError < RuntimeError
+    attr_reader :code
+    def initialize(code)
+      @code = code
+    end
+  end
+
+  class StatusError < FbError; end;
+  class ServerError < FbError; end;
+  class UnknownLoginError < FbError; end;
 
   {
     RuntimeError => ['ConnectionNotEstablished', 'ConnectionTimeout'],
@@ -132,10 +140,12 @@ module Fishbowl::Errors
     case code.to_i
     when 1000
         true
+    when 1100
+        raise UnknownLoginError.new(code.to_i), message
     when 1001..1999
-        raise ServerError.new(message)
+      raise ServerError.new(code.to_i), message
     else
-        raise StatusError.new(message)
+      raise StatusError.new(code.to_i), message
     end
   end
 end

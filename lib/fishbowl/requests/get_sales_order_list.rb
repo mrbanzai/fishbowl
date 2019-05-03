@@ -6,10 +6,8 @@ module Fishbowl::Requests
 
   class GetSalesOrderList < BaseRequest
 
-    attr_accessor :so_num
-    attr_accessor :customer_po
-    attr_accessor :account_number
-    attr_accessor :product_num
+    attr_accessor :so_num, :customer_po, :account_number, :product_num
+    attr_accessor :date_last_modified_begin :date_last_modified_end
 
     def compose
       validate
@@ -20,6 +18,8 @@ module Fishbowl::Requests
             xml.CustomerPO @customer_po unless @customer_po.nil?
             xml.AccountNumber @account_number unless @account_number.nil?
             xml.ProductNum @product_num unless @product_num.nil?
+            xml.DateLastModifiedBegin @date_last_modified_begin unless @date_last_modified_begin.nil?
+            xml.DateLastModifiedEnd @date_last_modified_end unless @date_last_modified_end.nil?
           }
         }
       end)

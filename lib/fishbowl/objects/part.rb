@@ -1,5 +1,6 @@
 require 'roxml'
 require 'fishbowl/objects/uom'
+require 'fishbowl/objects/tracking'
 
 module Fishbowl::Objects
   class Part
@@ -20,7 +21,13 @@ module Fishbowl::Objects
     xml_accessor :serialized?, :from => 'SerializedFlag'
     xml_accessor :tracking?, :from => 'TrackingFlag'
     xml_accessor :weight, :from => 'Weight', :as => Float
-    xml_accessor :weight_uoms, :from => 'WeightUOM/UOM', :as => [UOM]
+    xml_accessor :weight_uom, :from => 'WeightUOM', :as => WeightUOM
+    xml_accessor :width, :from => 'Width'
+    xml_accessor :height, :from => 'Height'
+    xml_accessor :len, :from => 'Len'
+    xml_accessor :size_uom, :from => 'SizeUOM', :as => SizeUOM
+    xml_accessor :upc, :from => 'UPC'
+    xml_accessor :part_tracking_list, :from => 'PartTrackingList', :as => PartTrackingList
   end
 
   class LightPart

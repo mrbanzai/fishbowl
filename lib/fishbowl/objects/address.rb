@@ -1,4 +1,5 @@
 require 'roxml'
+require 'fishbowl/objects/sales_order'
 
 module Fishbowl::Objects
 
@@ -58,6 +59,10 @@ module Fishbowl::Objects
     xml_accessor :state, :from => 'State', :as => State
     xml_accessor :country, :from => 'Country', :as => Country
     xml_accessor :address_information, :from => 'AddressInformation', :as => [AddressInformation], :in => 'AddressInformationList'
+  end
+
+  class RemitTo < CustomerAddress
+    xml_name 'RemitTo'
   end
 
 end
