@@ -4,9 +4,9 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'fishbowl/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "fishbowl"
+  gem.name          = 'fishbowl'
   gem.version       = Fishbowl::VERSION
-  gem.authors       = ['James Thompson', 'Michael Porter', 'Pierre Berard', 'Mark Garringer']
+  gem.authors       = ['James Thompson', 'Michael Porter', 'Mark Garringer', 'Pierre Berard']
   gem.email         = ['james@plainprograms.com', 'michael@commercecraft.com', 'mark@thehubmedia.com', 'pierre.berard@maestrano.com',]
   gem.description   = %q{Provides an interface to the Fishbowl Inventory API}
   gem.summary       = %q{Fishbowl Inventory API}
